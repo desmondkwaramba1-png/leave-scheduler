@@ -46,4 +46,16 @@ function checkCapacityForDate(db, teamId, date, teamSize) {
 
     return countOnLeave < limit;
 }
-module.exports = { isWorkingDay, getWorkingDaysInRange, getTeamLeaveLimit, checkCapacityForDate };
+function checkOverlap(db, employeeId, startDate, endDate) {
+    const overlapping = db.prepare(`
+    SELECT COUNT(*) as count
+    FROM leave_requests
+    WHERE employee_id = ?
+      AND status IN ('pending', 'approved')
+      AND start_date <= ?
+      AND end_date >= ?
+  `).get(employeeId, endDate, startDate).count;
+
+    return overlapping > 0;
+}
+module.exports = { isWorkingDay, getWorkingDaysInRange, getTeamLeaveLimit, checkCapacityForDate, checkOverlap };
