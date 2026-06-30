@@ -72,4 +72,31 @@ router.patch('/:id', (req, res) => {
     const updated = db.prepare('SELECT * FROM leave_requests WHERE id = ?').get(id);
     res.json(updated);
 });
+//listing leave for the next 30 days. This is what the calendar/list view in the frontend will use.
+router.get('/', (req, res) => {
+    const today = new Date();
+    const startDate = today.toISOString().split('T')[0];
+
+    const future = new Date();
+    future.setUTCDate(future.getUTCDate() + 30);
+    const endDate = future.toISOString().split('T')[0];
+
+    const requests = db.prepare(`
+    SELECT
+      leave_requests.id,
+      leave_requests.start_date,
+      leave_requests.end_date,
+      leave_requests.status,
+      employees.name as employee_name,
+      teams.name as team_name
+    FROM leave_requests
+    JOIN employees ON leave_requests.employee_id = employees.id
+    JOIN teams ON employees.team_id = teams.id
+    WHERE leave_requests.start_date <= ?
+      AND leave_requests.end_date >= ?
+    ORDER BY leave_requests.start_date ASC
+  `).all(endDate, startDate);
+
+    res.json(requests);
+});
 module.exports = router;
