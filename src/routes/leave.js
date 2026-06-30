@@ -47,4 +47,29 @@ router.post('/', (req, res) => {
 
     res.status(201).json({ id: result.lastInsertRowid, employeeId, startDate, endDate, status: 'pending' });
 });
+
+//approve/reject endpoint
+router.patch('/:id', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ error: "status must be 'approved' or 'rejected'" });
+    }
+
+    const leaveRequest = db.prepare('SELECT * FROM leave_requests WHERE id = ?').get(id);
+
+    if (!leaveRequest) {
+        return res.status(404).json({ error: 'Leave request not found' });
+    }
+
+    if (leaveRequest.status !== 'pending') {
+        return res.status(409).json({ error: `This request is already ${leaveRequest.status}` });
+    }
+
+    db.prepare('UPDATE leave_requests SET status = ? WHERE id = ?').run(status, id);
+
+    const updated = db.prepare('SELECT * FROM leave_requests WHERE id = ?').get(id);
+    res.json(updated);
+});
 module.exports = router;
