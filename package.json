@@ -9,6 +9,12 @@
     "test": "jest",
     "seed": "node src/db/seed.js"
   },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/client/"
+    ]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

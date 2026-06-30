@@ -9,6 +9,11 @@ function App() {
   useEffect(() => {
     fetchRequests();
   }, []);
+  const [employeeId, setEmployeeId] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   function fetchRequests() {
     fetch(API_URL)
@@ -24,9 +29,65 @@ function App() {
       .then(res => res.json())
       .then(() => fetchRequests());
   }
+  function submitRequest(e) {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ employeeId: Number(employeeId), startDate, endDate })
+    })
+      .then(res => res.json().then(data => ({ status: res.status, data })))
+      .then(({ status, data }) => {
+        if (status !== 201) {
+          setError(data.error);
+        } else {
+          setSuccess('Leave request submitted and pending approval.');
+          setEmployeeId('');
+          setStartDate('');
+          setEndDate('');
+          fetchRequests();
+        }
+      });
+  }
   return (
     <div>
       <h1>Team Leave Scheduler</h1>
+      <h2>Submit Leave Request</h2>
+      <form onSubmit={submitRequest}>
+        <label>
+          Employee ID:
+          <input
+            type="number"
+            value={employeeId}
+            onChange={e => setEmployeeId(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          Start Date:
+          <input
+            type="date"
+            value={startDate}
+            onChange={e => setStartDate(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          End Date:
+          <input
+            type="date"
+            value={endDate}
+            onChange={e => setEndDate(e.target.value)}
+            required
+          />
+        </label>
+        <button type="submit">Submit Request</button>
+      </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {success && <p style={{ color: 'green' }}>{success}</p>}
 
       <h2>Leave Requests — Next 30 Days</h2>
       <table border="1" cellPadding="8">
