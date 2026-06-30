@@ -60,3 +60,32 @@ describe('30% capacity rule', () => {
         expect(result).toBe(false);
     });
 });
+describe('overlap rule', () => {
+    beforeEach(() => {
+        db.prepare('INSERT INTO teams (id, name) VALUES (1, ?)').run('Engineering');
+        db.prepare('INSERT INTO employees (id, name, team_id) VALUES (1, ?, 1)').run('Tariro Moyo');
+
+        db.prepare(`INSERT INTO leave_requests (employee_id, start_date, end_date, status) VALUES (1, ?, ?, ?)`)
+            .run('2026-07-10', '2026-07-15', 'pending');
+    });
+
+    test('detects an overlapping request', () => {
+        const result = checkOverlap(db, 1, '2026-07-12', '2026-07-18');
+        expect(result).toBe(true);
+    });
+
+    test('allows a non-overlapping request', () => {
+        const result = checkOverlap(db, 1, '2026-07-20', '2026-07-22');
+        expect(result).toBe(false);
+    });
+
+    test('detects an overlap that touches the exact boundary', () => {
+        const result = checkOverlap(db, 1, '2026-07-15', '2026-07-16');
+        expect(result).toBe(true);
+    });
+
+    test('blocks overlap even when existing request is only pending, not approved', () => {
+        const result = checkOverlap(db, 1, '2026-07-11', '2026-07-11');
+        expect(result).toBe(true);
+    });
+});
