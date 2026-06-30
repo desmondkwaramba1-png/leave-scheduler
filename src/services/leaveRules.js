@@ -32,4 +32,18 @@ function getWorkingDaysInRange(startDate, endDate) {
 function getTeamLeaveLimit(teamSize) {
     return Math.floor(teamSize * 0.3);
 }
-module.exports = { isWorkingDay, getWorkingDaysInRange, getTeamLeaveLimit };
+function checkCapacityForDate(db, teamId, date, teamSize) {
+    const limit = getTeamLeaveLimit(teamSize);
+
+    const countOnLeave = db.prepare(`
+    SELECT COUNT(*) as count
+    FROM leave_requests
+    JOIN employees ON leave_requests.employee_id = employees.id
+    WHERE employees.team_id = ?
+      AND leave_requests.status = 'approved'
+      AND ? BETWEEN leave_requests.start_date AND leave_requests.end_date
+  `).get(teamId, date).count;
+
+    return countOnLeave < limit;
+}
+module.exports = { isWorkingDay, getWorkingDaysInRange, getTeamLeaveLimit, checkCapacityForDate };
