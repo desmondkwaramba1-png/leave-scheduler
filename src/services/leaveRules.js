@@ -29,4 +29,7 @@ function getWorkingDaysInRange(startDate, endDate) {
 
     return days;
 }
-module.exports = { isWorkingDay, getWorkingDaysInRange };
+function getTeamLeaveLimit(teamSize) {
+    return Math.floor(teamSize * 0.3);
+}
+module.exports = { isWorkingDay, getWorkingDaysInRange, getTeamLeaveLimit };
