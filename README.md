@@ -2,6 +2,11 @@
 
 A small internal HR tool for viewing team leave over the next 30 days, submitting leave requests, and approving or rejecting them, with a 30% team capacity rule and overlap protection.
 
+
+## Video Walkthrough
+
+https://www.loom.com/share/081a22f020714cc3b12a9df5e9128ed1
+
 ## Tech Stack
 
 - Backend: Node.js, Express
