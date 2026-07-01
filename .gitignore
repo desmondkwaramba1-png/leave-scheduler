@@ -1,4 +1,4 @@
-node_modules/
-client/node_modules/
-.env
-src/db/leave.db
+node_modules/ 
+client/node_modules/ 
+.env 
+src/db/leave.db 
