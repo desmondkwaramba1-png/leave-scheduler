@@ -53,8 +53,8 @@ router.patch('/:id', (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    if (!['approved', 'rejected'].includes(status)) {
-        return res.status(400).json({ error: "status must be 'approved' or 'rejected'" });
+    if (!['approved', 'rejected', 'cancelled'].includes(status)) {
+        return res.status(400).json({ error: "status must be 'approved' , 'rejected' or 'cancelled" });
     }
 
     const leaveRequest = db.prepare('SELECT * FROM leave_requests WHERE id = ?').get(id);
